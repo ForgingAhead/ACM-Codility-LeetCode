@@ -1,45 +1,42 @@
+import java.util.ArrayList;
+import java.lang.Math;
+
 class Solution {
     public int solution(int[] A) {
-
-        int peaks[] = new int[A.length];
-        int count=0;
+        ArrayList<Integer> peaks = new ArrayList();
+        
         for(int i=1; i<A.length-1; i++){
             if(A[i]>A[i-1] && A[i]>A[i+1]){
-                peaks[i] = ++count;
+                peaks.add(i);
                 i++;
             }
         }
-
+        
+        int count = peaks.size();
+        
         if(count<2) return count;
-
-        int flag = count;
-        int prior = 0;
-        int distance;
-        int toFlag;
-        while(flag>0){
-            distance = flag;
-            toFlag = flag;
-            prior=0;
-            for(int i=1; i<A.length; i++){
-                if(peaks[i]>0){
-                    toFlag--; //assume this peak is eligible to flag.
-                    if(prior==0) {prior = i;}
-                    else {
-                        if(i-prior < distance) {//by calculation, this peak not qualified to flag;
-                            toFlag++;
-                            if(count-peaks[i]<toFlag) {//not enough peaks to flag;
-                                flag--;
-                                break;
-                            }
-                        } else {// qualified peak for the flag
-                            prior = i;
-                        }
+        
+        int maxFlags = (int)Math.round(Math.sqrt(peaks.get(count-1)-peaks.get(0))) + 1;
+        maxFlags = maxFlags>count ? count:maxFlags;
+        
+        while(maxFlags>=2){
+            int distance = maxFlags;
+            int toFlag = maxFlags-1;
+            int prior = 0;
+            
+            for(int i=1; i<count; i++){
+                if(peaks.get(i)-peaks.get(prior) >= distance){//this peak is qualified to flag
+                    toFlag--;
+                    prior = i;
+                } else { // not qualified to flag.
+                    if(count-i-1<toFlag) {//not enough peaks remain to flag
+                        maxFlags--;
+                        break;
                     }
-                    i++;
                 }
-                if(toFlag==0) return flag;
             }
+            if(toFlag==0) return maxFlags;
         }
-        return flag;
+        return maxFlags;
     }
 }
